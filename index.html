@@ -3,541 +3,466 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Asistente Educativo</title>
+    <title>Asistente Educativo Mejorado</title>
+    
+    <!-- Estilos externos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.16/tailwind.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="styles.css">
-    <script defer src="script.js"></script>
+    
+    <!-- Estilos propios -->
     <style>
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #10b981;
+            --danger-color: #ef4444;
+            --background-color: #f0f2f5;
+            --text-color: #1f2937;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f2f5;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.5;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 1rem;
+        }
+
+        .card {
+            background: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .chat-container {
+            height: 500px;
+            overflow-y: auto;
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 0.5rem;
+            border: 1px solid #e5e7eb;
+        }
+
+        .message {
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            max-width: 80%;
+        }
+
+        .message-user {
+            background-color: var(--primary-color);
+            color: white;
+            margin-left: auto;
+        }
+
+        .message-assistant {
+            background-color: #e5e7eb;
+            color: var(--text-color);
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip-content {
+            position: absolute;
+            z-index: 10;
+            background: white;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: 200px;
+            display: none;
+        }
+
+        .tooltip:hover .tooltip-content {
+            display: block;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 0.5rem;
+            background: #e5e7eb;
+            border-radius: 0.25rem;
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background-color: var(--primary-color);
+            transition: width 0.3s ease;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .alert-info {
+            background-color: #e0f2fe;
+            border: 1px solid #bae6fd;
+            color: #0369a1;
+        }
+
+        .alert-success {
+            background-color: #dcfce7;
+            border: 1px solid #86efac;
+            color: #15803d;
+        }
+
+        .alert-error {
+            background-color: #fee2e2;
+            border: 1px solid #fecaca;
+            color: #b91c1c;
+        }
+
+        /* Estilos para el modal de ayuda */
+        .help-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            margin: 0;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
         }
-        .container {
-            display: flex;
-            gap: 2rem;
-            background: #ffffff;
-            padding: 2rem;
-            border-radius: 15px;
-            box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.1);
-            max-width: 1200px;
-            width: 100%;
+
+        .help-modal.open {
+            opacity: 1;
+            visibility: visible;
         }
-        .chat-section, .training-section {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
+
+        .help-modal-content {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
         }
-        .chat-header, .training-header {
+
+        .help-modal.open .help-modal-content {
+            transform: translateY(0);
+        }
+
+        .help-modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1rem;
         }
-        .chat-header h2, .training-header h2 {
+
+        .help-modal-header h2 {
             margin: 0;
-            color: #333;
+            font-size: 1.5rem;
         }
-        .chat-messages {
-            flex: 1;
-            background: #e9eff6;
-            padding: 1rem;
-            border-radius: 10px;
-            overflow-y: auto;
+
+        .help-modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .help-modal-body {
             margin-bottom: 1rem;
         }
-        .message {
-            padding: 1rem;
-            border-radius: 10px;
-            margin-bottom: 1rem;
-            max-width: 80%;
-        }
-        .user-message {
-            background: #4f46e5;
-            color: white;
-            align-self: flex-end;
-        }
-        .bot-message {
-            background: #f0f0f0;
-            color: #333;
-            align-self: flex-start;
-        }
-        .input-area {
+
+        .help-modal-footer {
             display: flex;
-            gap: 1rem;
+            justify-content: flex-end;
         }
-        #user-input {
-            flex: 1;
-            padding: 1rem;
-            border-radius: 5px;
-            border: 1px solid #ddd;
+
+        /* Botones flotantes de ayuda */
+        .help-buttons {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            display: flex;
+            gap: 0.5rem;
+            z-index: 100;
         }
-        #send-button {
-            padding: 0.75rem 1.5rem;
-            border: none;
-            background: #ff7f50;
+
+        .help-button {
+            background-color: var(--primary-color);
             color: white;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        #send-button:hover {
-            background: #e76e3b;
-        }
-        #connect-button {
-            padding: 0.5rem 1rem;
             border: none;
-            background: #10b981;
-            color: white;
-            border-radius: 5px;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             cursor: pointer;
-            transition: background 0.3s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.2s;
         }
-        #connect-button:hover {
-            background: #0e9b7f;
-        }
-        #disconnect-button {
-            padding: 0.5rem 1rem;
-            border: none;
-            background: #ef4444;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        #disconnect-button:hover {
-            background: #dc2626;
-        }
-        #load-data, #load-links {
-            padding: 0.5rem 1rem;
-            border: none;
-            background: #1e3a8a;
-            color: white;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        #load-data:hover, #load-links:hover {
-            background: #1c2e7b;
-        }
-        #training-progress {
-            width: 100%;
-            background-color: #e0e0e0;
-            border-radius: 10px;
-            margin-top: 1rem;
-            height: 20px;
-            overflow: hidden;
-        }
-        #training-progress-bar {
-            height: 100%;
-            background-color: #4f46e5;
-            width: 0;
-            transition: width 0.5s;
-        }
-        .connected-status {
-            font-weight: bold;
-            margin-top: 0.5rem;
-        }
-        .status-connected {
-            color: #10b981;
-        }
-        .status-disconnected {
-            color: #ef4444;
+
+        .help-button:hover {
+            background-color: #4338ca;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <!-- Sección del chat -->
-        <section class="chat-section">
-            <div class="chat-header">
-                <h2>Asistente IA</h2>
-                <div>
-                    <select id="model-select">
-                        <optgroup label="Modelos Gratuitos">
-                            <option value="gpt-3.5-turbo" selected>GPT-3.5 Turbo (Gratuito)</option>
-                            <option value="claude-2">Claude-2 (50 mensajes/día)</option>
-                            <option value="open-assistant">OpenAssistant (100 msgs/día)</option>
-                            <option value="bloom">BLOOM (Hugging Face)</option>
-                        </optgroup>
-                        <optgroup label="Modelos de Pago">
-                            <option value="gpt-4">GPT-4 ($0.03/1K tokens)</option>
-                            <option value="gpt-4-turbo">GPT-4 Turbo ($0.01/1K tokens)</option>
-                            <option value="cohere-command">Cohere Command ($2/M tokens)</option>
-                            <option value="anthropic-pro">Anthropic Pro (Enterprise)</option>
-                            <option value="vertex-ai">Vertex AI (Google Cloud)</option>
-                            <option value="ai21-jurassic-2">AI21 Jurassic-2 (Pay per use)</option>
-                            <option value="azure-openai">Azure OpenAI (Enterprise)</option>
-                        </optgroup>
-                    </select>
-                    <input type="text" id="api-key-input" placeholder="Ingrese su clave API">
-                    <button id="connect-button">Conectar</button>
-                    <button id="disconnect-button">Desconectar</button>
+<body class="bg-gray-50">
+    <div id="app" class="min-h-screen">
+        <header class="bg-white shadow">
+            <div class="max-w-7xl mx-auto px-4 py-6">
+                <h1 class="text-3xl font-bold text-gray-900">Asistente Educativo IA</h1>
+            </div>
+        </header>
+
+        <main class="max-w-7xl mx-auto px-4 py-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Sección de Conexión -->
+                <section class="bg-white p-6 rounded-lg shadow">
+                    <h2 class="text-xl font-semibold mb-4">Configuración de Conexión</h2>
+                    
+                    <div class="space-y-4">
+                        <div class="form-group">
+                            <label class="block text-sm font-medium text-gray-700">API Key</label>
+                            <input type="password" id="api-key-input" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="block text-sm font-medium text-gray-700">Modelo IA</label>
+                            <select id="model-select" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                                <optgroup label="Modelos Gratuitos">
+                                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo (Gratuito)</option>
+                                    <option value="claude-instant">Claude Instant (100K tokens/día)</option>
+                                    <option value="palm2">PaLM 2 (Google - Free tier)</option>
+                                    <option value="mistral">Mistral AI (Free tier)</option>
+                                </optgroup>
+                                <optgroup label="Modelos de Pago">
+                                    <option value="gpt-4">GPT-4</option>
+                                    <option value="claude-3-opus">Claude 3 Opus</option>
+                                    <option value="cohere-command">Cohere Command</option>
+                                </optgroup>
+                            </select>
+                        </div>
+
+                        <div class="flex space-x-4">
+                            <button id="connect-button" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">
+                                Conectar
+                            </button>
+                            <button id="disconnect-button" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600">
+                                Desconectar
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Sección de Chat -->
+                <section class="bg-white p-6 rounded-lg shadow">
+                    <h2 class="text-xl font-semibold mb-4">Chat con IA</h2>
+                    
+                    <div class="chat-container h-96 bg-gray-50 rounded-md p-4 mb-4 overflow-y-auto" id="chat-messages">
+                        <!-- Los mensajes se agregarán aquí dinámicamente -->
+                    </div>
+
+                    <div class="flex space-x-2">
+                        <input type="text" id="message-input" class="flex-1 rounded-md border-gray-300 shadow-sm" placeholder="Escribe tu mensaje...">
+                        <button id="send-button" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+                            Enviar
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Sección de Entrenamiento -->
+                <section class="bg-white p-6 rounded-lg shadow">
+                    <h2 class="text-xl font-semibold mb-4">Entrenamiento del Asistente</h2>
+                    
+                    <div class="space-y-4">
+                        <div class="form-group">
+                            <label class="block text-sm font-medium text-gray-700">Cargar Documentos</label>
+                            <input type="file" id="file-upload" multiple class="mt-1 block w-full" accept=".txt,.pdf,.doc,.docx,.csv">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="block text-sm font-medium text-gray-700">Agregar Enlaces</label>
+                            <div class="flex space-x-2">
+                                <input type="text" id="link-input" class="flex-1 rounded-md border-gray-300 shadow-sm" placeholder="URL o enlace de YouTube">
+                                <button id="load-links" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+                                    Cargar
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="progress-container">
+                            <div class="bg-gray-200 rounded-full h-2.5">
+                                <div id="training-progress-bar" class="bg-blue-500 h-2.5 rounded-full w-0 transition-all duration-300"></div>
+                            </div>
+                        </div>
+
+                        <div id="documents-list" class="mt-4 space-y-2">
+                            <!-- La lista de documentos se agregará aquí -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Sección de Configuración -->
+                <section class="bg-white p-6 rounded-lg shadow">
+                    <h2 class="text-xl font-semibold mb-4">Configuración</h2>
+                    
+                    <div class="space-y-4">
+                        <div class="form-group">
+                            <label class="block text-sm font-medium text-gray-700">Rol del Asistente</label>
+                            <select id="role-select" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                                <option value="default">Seleccione un rol</option>
+                                <optgroup label="Roles Médicos">
+                                    <option value="doctor">Doctor</option>
+                                    <option value="nurse">Enfermero</option>
+                                    <option value="pharmacist">Farmacéutico</option>
+                                </optgroup>
+                                <optgroup label="Roles Científicos">
+                                    <option value="biologist">Biólogo</option>
+                                    <option value="chemist">Químico</option>
+                                    <option value="physicist">Físico</option>
+                                </optgroup>
+                                <optgroup label="Roles de Ingeniería">
+                                    <option value="mechanical">Ingeniero Mecánico</option>
+                                    <option value="electrical">Ingeniero Eléctrico</option>
+                                    <option value="software">Ingeniero de Software</option>
+                                </optgroup>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="block text-sm font-medium text-gray-700">Idioma</label>
+                            <select id="language-select" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                                <option value="es">Español</option>
+                                <option value="en">English</option>
+                                <option value="fr">Français</option>
+                                <option value="de">Deutsch</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Botones flotantes de ayuda -->
+        <div class="help-buttons">
+            <button class="help-button" onclick="openHelpModal('api-key-help')">
+                <i class="fas fa-key"></i>
+            </button>
+            <button class="help-button" onclick="openHelpModal('section-help')">
+                <i class="fas fa-info-circle"></i>
+            </button>
+        </div>
+
+        <!-- Modal de ayuda -->
+        <div id="help-modal" class="help-modal">
+            <div class="help-modal-content">
+                <div class="help-modal-header">
+                    <h2 id="help-modal-title">Ayuda</h2>
+                    <button class="help-modal-close" onclick="closeHelpModal()">&times;</button>
                 </div>
-                <select id="role-select">
-                    <option value="default">Seleccione un rol del asistente</option>
-                    <option value="medico">Médico</option>
-                    <option value="enfermero">Enfermero</option>
-                    <option value="biologo">Biólogo</option>
-                    <option value="ecologo">Ecólogo</option>
-                    <option value="quimico">Químico</option>
-                    <option value="quimico-farmaceutico">Químico Farmacéutico</option>
-                    <option value="ingeniero-electronico">Ingeniero Electrónico</option>
-                    <option value="ingeniero-mecanico">Ingeniero Mecánico</option>
-                    <option value="ingeniero-biomedico">Ingeniero Biomédico</option>
-                    <option value="fisico-teorico">Físico Teórico</option>
-                    <option value="fisico-aplicado">Físico Aplicado</option>
-                    <option value="matematico">Matemático</option>
-                    <option value="ingeniero-matematico">Ingeniero Matemático</option>
-                    <option value="ingeniero-fisico">Ingeniero Físico</option>
-                    <option value="biofisico">Biofísico</option>
-                </select>
-                <select id="language-select">
-                    <option value="en">Inglés (por defecto)</option>
-                    <option value="es">Español</option>
-                    <option value="fr">Francés</option>
-                    <option value="de">Alemán</option>
-                    <option value="it">Italiano</option>
-                    <option value="pt">Portugués</option>
-                </select>
+                <div class="help-modal-body" id="help-modal-body">
+                    <!-- El contenido de ayuda se cargará aquí -->
+                </div>
+                <div class="help-modal-footer">
+                    <button class="btn btn-primary" onclick="closeHelpModal()">Cerrar</button>
+                </div>
             </div>
-            <div class="connected-status" id="connected-status">Desconectado</div>
-            <div class="chat-messages" id="chat-messages"></div>
-            <div class="input-area">
-                <input type="text" id="user-input" placeholder="Escribe tu mensaje aquí...">
-                <button id="send-button">Enviar</button>
-            </div>
-        </section>
-
-        <!-- Sección de entrenamiento -->
-        <section class="training-section">
-            <div class="training-header">
-                <h2>Entrenamiento del Asistente</h2>
-            </div>
-            <input type="file" id="document-input" multiple>
-            <button id="load-data">Cargar Documentos</button>
-            <input type="text" id="link-input" placeholder="Ingresa un enlace de la web o video de YouTube">
-            <button id="load-links">Cargar Enlaces</button>
-            <div id="data-list"></div>
-            <div id="training-progress">
-                <div id="training-progress-bar"></div>
-            </div>
-        </section>
+        </div>
     </div>
+
+    <!-- Scripts -->
     <script>
-        const DocumentSystem = {
-            storage: {
-                documents: new Map(),
-                currentRole: 'Matemático',
-                currentLanguage: 'Español',
-                isConnected: false,
-                apiKey: null,
-                selectedModel: 'gpt-3.5-turbo'
-            },
+        // Funciones para abrir y cerrar el modal de ayuda
+        function openHelpModal(helpType) {
+            const modal = document.getElementById('help-modal');
+            const modalTitle = document.getElementById('help-modal-title');
+            const modalBody = document.getElementById('help-modal-body');
 
-            async initialize(apiKey, model) {
-                try {
-                    if (!apiKey) {
-                        throw new Error('Clave API no proporcionada');
-                    }
-                    if (!model) {
-                        throw new Error('Modelo no seleccionado');
-                    }
-                    this.storage.apiKey = apiKey;
-                    this.storage.selectedModel = model;
-                    this.storage.isConnected = true;
-                    console.log('Sistema inicializado correctamente con el modelo:', model);
-                    updateConnectionStatus(this.storage.isConnected);
-                    alert('Conexión exitosa al servicio de OpenAI con el modelo seleccionado.');
-                } catch (error) {
-                    console.error('Error al inicializar el sistema:', error);
-                    this.storage.isConnected = false;
-                    updateConnectionStatus(false);
-                    alert(`Ocurrió un error al inicializar el sistema: ${error.message}`);
-                }
-            },
-
-            async callAI(prompt) {
-                if (!this.storage.isConnected) {
-                    throw new Error('No estás conectado a ningún servicio. Por favor, conecta primero.');
-                }
-                try {
-                    let model = this.storage.selectedModel;
-                    // Intentar con GPT-3.5 si GPT-4 no está disponible
-                    try {
-                        const response = await fetch('https://api.openai.com/v1/completions', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${this.storage.apiKey}`
-                            },
-                            body: JSON.stringify({
-                                model: model,
-                                prompt: prompt,
-                                max_tokens: 150,
-                                temperature: 0.7
-                            })
-                        });
-
-                        if (!response.ok) {
-                            const errorDetails = await response.json();
-                            if (errorDetails.error && errorDetails.error.code === 'invalid_api_key') {
-                                throw new Error('Clave API incorrecta. Verifica la clave ingresada y vuelve a intentarlo.');
-                            } else if (errorDetails.error && errorDetails.error.code === 'model_not_found') {
-                                alert(`El modelo ${model} no está disponible. Cambiando a GPT-3.5 Turbo.`);
-                                model = 'gpt-3.5-turbo';
-                            } else if (errorDetails.error && errorDetails.error.code === 'insufficient_quota') {
-                                throw new Error('Has superado tu cuota de uso. Verifica tu plan y detalles de facturación en OpenAI.');
-                            } else {
-                                throw new Error(`Error en la respuesta de la API: ${errorDetails.error.message}`);
-                            }
-                        } else {
-                            const data = await response.json();
-                            return data.choices[0].text.trim();
-                        }
-                    } catch (innerError) {
-                        console.error('Error llamando al modelo original, intentando con GPT-3.5:', innerError);
-                        const fallbackResponse = await fetch('https://api.openai.com/v1/completions', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'Authorization': `Bearer ${this.storage.apiKey}`
-                            },
-                            body: JSON.stringify({
-                                model: 'gpt-3.5-turbo',
-                                prompt: prompt,
-                                max_tokens: 150,
-                                temperature: 0.7
-                            })
-                        });
-
-                        if (!fallbackResponse.ok) {
-                            const errorDetails = await fallbackResponse.text();
-                            throw new Error(`Error en la respuesta de la API: ${errorDetails}`);
-                        }
-
-                        const data = await fallbackResponse.json();
-                        return data.choices[0].text.trim();
-                    }
-                } catch (error) {
-                    console.error('Error llamando a la API:', error);
-                    throw new Error(`Error al generar la respuesta: ${error.message}`);
-                }
-            },
-
-            async generateResponse(query) {
-                try {
-                    const response = await this.callAI(query);
-                    return response;
-                } catch (error) {
-                    console.error('Error generando respuesta:', error);
-                    throw error;
-                }
-            },
-
-            async processDocuments(documents, role) {
-                try {
-                    for (const document of documents) {
-                        const result = await this.processDocument(document, role);
-                        this.storage.documents.set(document.name, result);
-                        this.updateDataList(result.message);
-                    }
-                    this.updateTrainingProgress(100);
-                    alert('Entrenamiento completado con los documentos cargados.');
-                } catch (error) {
-                    console.error('Error al procesar documentos:', error);
-                    alert('Ocurrió un error al procesar los documentos. Por favor, inténtalo de nuevo.');
-                }
-            },
-
-            async processDocument(file) {
-                try {
-                    const content = await this.readFileContent(file);
-                    const processedDoc = {
-                        content: content,
-                        metadata: {
-                            filename: file.name,
-                            timestamp: Date.now(),
-                            processed: true
-                        }
-                    };
-
-                    return {
-                        success: true,
-                        message: `Documento "${file.name}" procesado y listo para consultas`
-                    };
-                } catch (error) {
-                    console.error('Error procesando documento:', error);
-                    return {
-                        success: false,
-                        message: `Error al procesar el documento "${file.name}"`
-                    };
-                }
-            },
-
-            async processLink(link) {
-                try {
-                    if (!link) {
-                        throw new Error('No se proporcionó un enlace válido');
-                    }
-                    const processedLink = {
-                        content: `Contenido extraído del enlace: ${link}`,
-                        metadata: {
-                            link: link,
-                            timestamp: Date.now(),
-                            processed: true
-                        }
-                    };
-
-                    return {
-                        success: true,
-                        message: `Enlace "${link}" procesado y listo para consultas`
-                    };
-                } catch (error) {
-                    console.error('Error procesando el enlace:', error);
-                    return {
-                        success: false,
-                        message: `Error al procesar el enlace "${link}"`
-                    };
-                }
-            },
-
-            async readFileContent(file) {
-                return new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = () => resolve(reader.result);
-                    reader.onerror = () => reject(new Error('Error al leer el archivo'));
-                    reader.readAsText(file);
-                });
-            },
-
-            updateDataList(message) {
-                const dataList = document.getElementById('data-list');
-                const dataItem = document.createElement('div');
-                dataItem.className = 'bg-white shadow-sm rounded-md p-2 mb-2';
-                dataItem.textContent = message;
-                dataList.appendChild(dataItem);
-            },
-
-            updateTrainingProgress(progress) {
-                const trainingProgressBar = document.getElementById('training-progress-bar');
-                trainingProgressBar.style.width = `${progress}%`;
+            if (helpType === 'api-key-help') {
+                modalTitle.textContent = 'Cómo obtener una API Key';
+                modalBody.innerHTML = `
+                    <h3 class="text-lg font-semibold mb-2">Pasos para obtener una API Key:</h3>
+                    <ul class="list-disc pl-5">
+                        <li>Visita la plataforma del proveedor de IA (por ejemplo, OpenAI, Anthropic, etc.).</li>
+                        <li>Crea una cuenta o inicia sesión si ya tienes una.</li>
+                        <li>Navega a la sección de API o desarrolladores.</li>
+                        <li>Genera una nueva API Key.</li>
+                        <li>Copia la clave y pégala en el campo correspondiente de esta aplicación.</li>
+                    </ul>
+                    <p class="mt-4 text-sm text-gray-600">Nota: Nunca compartas tu API Key con nadie.</p>
+                `;
+            } else if (helpType === 'section-help') {
+                modalTitle.textContent = 'Guía de la aplicación';
+                modalBody.innerHTML = `
+                    <h3 class="text-lg font-semibold mb-2">Secciones de la aplicación:</h3>
+                    <ul class="list-disc pl-5">
+                        <li><strong>Conexión:</strong> Configura tu API Key y selecciona el modelo de IA.</li>
+                        <li><strong>Chat:</strong> Interactúa con el asistente de IA enviando mensajes.</li>
+                        <li><strong>Entrenamiento:</strong> Carga documentos o enlaces para entrenar al asistente.</li>
+                        <li><strong>Configuración:</strong> Define el rol y el idioma del asistente.</li>
+                    </ul>
+                `;
             }
-        };
 
-        async function handleMessage() {
-            const userInput = document.getElementById('user-input');
-            const query = userInput.value.trim();
-
-            if (!query) return;
-
-            try {
-                addMessage(query, true);
-                userInput.value = '';
-
-                const response = await DocumentSystem.generateResponse(query);
-                addMessage(response, false);
-
-            } catch (error) {
-                console.error('Error:', error);
-                addMessage(`Error al procesar tu consulta: ${error.message}. Por favor, intenta nuevamente.`, false);
-            }
+            modal.classList.add('open');
         }
 
-        async function handleLinkProcessing() {
-            const linkInput = document.getElementById('link-input');
-            const link = linkInput.value.trim();
-
-            if (!link) {
-                alert('Por favor, ingresa un enlace válido.');
-                return;
-            }
-
-            try {
-                const result = await DocumentSystem.processLink(link);
-                DocumentSystem.updateDataList(result.message);
-                alert(result.message);
-            } catch (error) {
-                console.error('Error procesando el enlace:', error);
-                alert('Error al procesar el enlace. Por favor, intenta de nuevo.');
-            }
+        function closeHelpModal() {
+            const modal = document.getElementById('help-modal');
+            modal.classList.remove('open');
         }
 
-        function addMessage(text, isUser) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
-            messageDiv.textContent = text;
-            document.getElementById('chat-messages').appendChild(messageDiv);
-            messageDiv.scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function updateConnectionStatus(status) {
-            const connectedStatus = document.getElementById('connected-status');
-            if (status) {
-                connectedStatus.textContent = 'Conectado';
-                connectedStatus.classList.add('status-connected');
-                connectedStatus.classList.remove('status-disconnected');
-            } else {
-                connectedStatus.textContent = 'Desconectado';
-                connectedStatus.classList.add('status-disconnected');
-                connectedStatus.classList.remove('status-connected');
-            }
-        }
-
+        // Inicialización de la aplicación
         document.addEventListener('DOMContentLoaded', () => {
-            const connectButton = document.getElementById('connect-button');
-            const disconnectButton = document.getElementById('disconnect-button');
-            const loadDataButton = document.getElementById('load-data');
-            const loadLinksButton = document.getElementById('load-links');
-
-            connectButton.addEventListener('click', () => {
-                const selectedModel = document.getElementById('model-select').value;
-                const apiKey = document.getElementById('api-key-input').value.trim();
-
-                if (!apiKey) {
-                    alert('Por favor, ingrese una clave API válida.');
-                    return;
-                }
-
-                if (!selectedModel) {
-                    alert('Por favor, seleccione un modelo.');
-                    return;
-                }
-
-                DocumentSystem.initialize(apiKey, selectedModel);
-            });
-
-            disconnectButton.addEventListener('click', () => {
-                DocumentSystem.storage.isConnected = false;
-                updateConnectionStatus(false);
-                document.getElementById('api-key-input').value = '';
-            });
-
-            loadDataButton.addEventListener('click', async () => {
-                const selectedRole = document.getElementById('role-select').value;
-                const documents = Array.from(document.getElementById('document-input').files);
-
-                if (!selectedRole || selectedRole === 'default') {
-                    alert('Por favor, selecciona un rol del asistente.');
-                    return;
-                }
-
-                if (documents.length === 0) {
-                    alert('Por favor, selecciona al menos un archivo para cargar.');
-                    return;
-                }
-
-                await DocumentSystem.processDocuments(documents, selectedRole);
-            });
-
-            loadLinksButton.addEventListener('click', handleLinkProcessing);
-
-            document.getElementById('send-button').addEventListener('click', handleMessage);
+            // Aquí puedes inicializar tu aplicación
         });
     </script>
 </body>
