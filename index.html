@@ -396,8 +396,11 @@
             <button class="help-button" onclick="openHelpModal('api-key-help')">
                 <i class="fas fa-key"></i>
             </button>
-            <button class="help-button" onclick="openHelpModal('section-help')">
-                <i class="fas fa-info-circle"></i>
+            <button class="help-button" onclick="openHelpModal('training-help')">
+                <i class="fas fa-graduation-cap"></i>
+            </button>
+            <button class="help-button" onclick="openHelpModal('configuration-help')">
+                <i class="fas fa-cog"></i>
             </button>
         </div>
 
@@ -439,16 +442,26 @@
                     </ul>
                     <p class="mt-4 text-sm text-gray-600">Nota: Nunca compartas tu API Key con nadie.</p>
                 `;
-            } else if (helpType === 'section-help') {
-                modalTitle.textContent = 'Guía de la aplicación';
+            } else if (helpType === 'training-help') {
+                modalTitle.textContent = 'Entrenamiento del Asistente';
                 modalBody.innerHTML = `
-                    <h3 class="text-lg font-semibold mb-2">Secciones de la aplicación:</h3>
+                    <h3 class="text-lg font-semibold mb-2">Cómo entrenar al asistente:</h3>
                     <ul class="list-disc pl-5">
-                        <li><strong>Conexión:</strong> Configura tu API Key y selecciona el modelo de IA.</li>
-                        <li><strong>Chat:</strong> Interactúa con el asistente de IA enviando mensajes.</li>
-                        <li><strong>Entrenamiento:</strong> Carga documentos o enlaces para entrenar al asistente.</li>
-                        <li><strong>Configuración:</strong> Define el rol y el idioma del asistente.</li>
+                        <li><strong>Documentos:</strong> Sube archivos en formato PDF, TXT, DOC o DOCX. El asistente procesará el contenido para aprender de él.</li>
+                        <li><strong>Enlaces:</strong> Proporciona enlaces a artículos, videos de YouTube o páginas web. El asistente analizará el contenido.</li>
+                        <li><strong>Progreso:</strong> La barra de progreso muestra el avance del entrenamiento.</li>
                     </ul>
+                    <p class="mt-4 text-sm text-gray-600">Nota: Asegúrate de que los documentos y enlaces sean relevantes para el tema que deseas que el asistente aprenda.</p>
+                `;
+            } else if (helpType === 'configuration-help') {
+                modalTitle.textContent = 'Configuración del Asistente';
+                modalBody.innerHTML = `
+                    <h3 class="text-lg font-semibold mb-2">Opciones de configuración:</h3>
+                    <ul class="list-disc pl-5">
+                        <li><strong>Rol:</strong> Selecciona el rol del asistente (médico, científico, ingeniero, etc.). Esto afectará cómo responde a tus preguntas.</li>
+                        <li><strong>Idioma:</strong> Elige el idioma en el que deseas que el asistente interactúe contigo.</li>
+                    </ul>
+                    <p class="mt-4 text-sm text-gray-600">Nota: Puedes cambiar estas opciones en cualquier momento.</p>
                 `;
             }
 
